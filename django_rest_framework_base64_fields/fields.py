@@ -31,7 +31,11 @@ class Base64FileField(Field):
             raise serializers.ValidationError(self._ERROR_MESSAGE)
         return file
 
-    def to_representation(self, value):
+   def to_representation(self, value):
         if not value:
             return None
-        return value.url
+        if isinstance(value, ContentFile):
+            return value
+        else:
+            request = self.context.get("request")
+            return request.build_absolute_uri(value.url)
